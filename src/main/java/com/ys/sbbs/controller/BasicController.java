@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/sbbs/basic") // localhost:8080/sbbs/basic
+@RequestMapping("/basic") // localhost:8080/sbbs/basic
 public class BasicController {
 	
 	// localhost:8080/sbbs/basic/basic1로 액세스
@@ -62,7 +62,7 @@ public class BasicController {
 	@ResponseBody
 	@RequestMapping("/basic5") 
 	// public String basic5(int num, String id) {
-		public String basic5(int num, @RequestParam(name = "id", defaultValue = "spring") String id) {
+	public String basic5(int num, @RequestParam(name = "id", defaultValue = "spring") String id) {
 		return "<h1>파라메터로 받은 num 값은 " + num + "이고.<br>" 
 				+ "id 값은 " + id +"입니다.</h1>";
 	}
