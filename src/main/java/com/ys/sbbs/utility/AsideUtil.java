@@ -8,10 +8,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class AsideUtil {
 	public String getTodayQuote(String filename) {
 		String result = null;
@@ -63,5 +68,23 @@ public class AsideUtil {
 			e.printStackTrace();
 		}
 		return newFname;
+	}
+	
+	// 행안부 도로명주소
+	public String getRoadAddr(String place) {
+		
+		return null;
+	}
+	
+	// 카카오 로컬API - 위도/경도 정보
+	public List<String> getGeoCode(String roadAddr){
+		List<String> list = new ArrayList<>();
+		
+		return list;
+	}
+	
+	// OpenWeather API
+	public String getWeather(List<String> geoCode) {
+		return "가상의 날씨";
 	}
 }

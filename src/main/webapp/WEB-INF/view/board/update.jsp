@@ -23,19 +23,19 @@
         			<div class = "col1"></div>
         			<div class = "col10">
         				<form action="/sbbs/board/update" method="post" enctype="multipart/form-data">
-        					<input type="hidden" name="bid" value="${bid}">
-        					<input type="hidden" name="uploadFiles" value="${files}">
+        					<input type="hidden" name="bid" value="${board.bid}">
+        					<input type="hidden" name="uploadFiles" value="${board.files}">
         					<table class="table table-borderless">
         						<tr>
 			                        <td><label class="col-form-label">제목</label></td>
 			                        <td colspan="2">
-			                        	<input type="text" name="title" class="form-control" value="${title}">
+			                        	<input type="text" name="title" class="form-control" value="${board.title}">
 			                        </td>
 			                    </tr>
 			                    <tr>
 			                        <td><label class="col-form-label">내용</label></td>
 			                        <td colspan="2">
-			                        	<textarea name="content" rows="10" class="form-control">${content}</textarea>
+			                        	<textarea name="content" rows="10" class="form-control">${board.content}</textarea>
 		                        	</td>
 			                    </tr>
 			                    <tr>
@@ -51,7 +51,7 @@
 			                    </tr>
 			                    <tr>
 			                    	<td><label class="col-form-label">추가</label></td>
-			                        <td><input type="file" name="profile" class="form-control" multiple></td>
+			                        <td><input type="file" name="files" class="form-control" multiple></td>
 			                    </tr>
 			                    <tr>
 			                        <td colspan="3" style="text-align: center;">
