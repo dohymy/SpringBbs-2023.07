@@ -6,14 +6,13 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ys.sbbs.dao.UserDaoMySQL;
+import com.ys.sbbs.dao.UserDaoOracle;
 import com.ys.sbbs.entity.User;
 
-//@Service
-public class UserServiceMySQLImpl implements UserService {
-	@Autowired private UserDaoMySQL userDao; //@Autowired 후 import
-	
-	// 형식을 맞춰준다
+@Service
+public class UserServiceOracleImpl implements UserService{
+	@Autowired private UserDaoOracle userDao;
+
 	@Override
 	public int getUserCount() {
 		int count = userDao.getUserCount();
@@ -28,8 +27,9 @@ public class UserServiceMySQLImpl implements UserService {
 
 	@Override
 	public List<User> getUserList(int page) {
+		int maxrow = page * 10;
 		int offset = (page - 1) * 10;
-		List<User> list = userDao.getUserList(offset);
+		List<User> list = userDao.getUserList(maxrow, offset);
 		return list;
 	}
 
@@ -49,7 +49,6 @@ public class UserServiceMySQLImpl implements UserService {
 	}
 
 	@Override
-	// mavenBbs - userService에서 가져옴
 	public int login(String uid, String pwd) {
 		User user = userDao.getUser(uid);
 		if (user == null)
@@ -59,6 +58,4 @@ public class UserServiceMySQLImpl implements UserService {
 		else
 			return WRONG_PASSWORD;
 	}
-	
-	
 }

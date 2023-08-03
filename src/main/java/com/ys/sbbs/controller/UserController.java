@@ -1,13 +1,15 @@
 package com.ys.sbbs.controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,8 @@ import com.ys.sbbs.utility.AsideUtil;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	
 	@Autowired private UserService userService;
 	@Value("${spring.servlet.multipart.location}") private String uploadDir;
 	
@@ -33,6 +37,7 @@ public class UserController {
 	public String registerForm() {
 		return "user/register";
 	}
+	
 	@PostMapping("/register")
 	public String registerProc(MultipartHttpServletRequest req, Model model) {
 		String uid = req.getParameter("uid");
@@ -51,7 +56,7 @@ public class UserController {
 		if (pwd.equals(pwd2) && pwd.length()>=1) {
 			String hashedPwd = BCrypt.hashpw(pwd, BCrypt.gensalt());
 			String filename = null;
-			if (filePart != null) {
+			if (filePart.getContentType().contains("image")) {
 				filename = filePart.getOriginalFilename();
 				String profilePath = uploadDir + "profile/" + filename;
 				try {
@@ -62,12 +67,12 @@ public class UserController {
 				AsideUtil au = new AsideUtil();
 				filename = au.squareImage(uploadDir + "profile/", filename);
 			}
+			
 			User user = new User(uid, hashedPwd, uname, email, filename, addr);
 			userService.insertUser(user);
 			model.addAttribute("msg", "등록을 마쳤습니다. 로그인하세요.");
 			model.addAttribute("url", "/sbbs/user/login");
-			return "user/login";
-			
+			return "common/alertMsg";
 		} else {
 			model.addAttribute("msg", "패스워드 입력이 잘못되었습니다.");
 			model.addAttribute("url", "/sbbs/user/register");
@@ -79,8 +84,9 @@ public class UserController {
 	public String loginForm() {
 		return "user/login";
 	}
+	
 	@PostMapping("/login")
-	public String loginProc(String uid, String pwd, HttpSession session, Model model) {
+	public String loginProc(String uid, String pwd, HttpServletRequest req, HttpSession session, Model model) {
 		int result = userService.login(uid, pwd);
 		if (result == UserService.CORRECT_LOGIN) {
 			session.setAttribute("sessUid", uid);
@@ -91,16 +97,15 @@ public class UserController {
 			session.setAttribute("profile", user.getProfile());
 			
 			// 상태 메세지
-			// D:\JavaWorkspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\bbs\WEB-INF/data/todayQuote.txt
-			String quoteFile = uploadDir + "/data/todayQuote.txt";
+			String quoteFile = uploadDir + "data/todayQuote.txt";
 			AsideUtil au = new AsideUtil();
 			String stateMsg = au.getTodayQuote(quoteFile);
 			session.setAttribute("stateMsg", stateMsg);
 			
 			// 환영 메세지
+			log.info("Info Login: {}, {}", uid, user.getUname());
 			model.addAttribute("msg", user.getUname() + "님 환영합니다.");
 			model.addAttribute("url", "/sbbs/board/list?p=1&f=&q=");
-			//model.addAttribute("url", "/sbbs/user/list/1");
 			return "common/alertMsg";
 		} else if (result == UserService.WRONG_PASSWORD) {
 			model.addAttribute("msg", "잘못된 패스워드입니다. 다시 입력하세요.");
@@ -111,7 +116,6 @@ public class UserController {
 			model.addAttribute("url", "/sbbs/user/register");
 			return "common/alertMsg";
 		}
-		
 	}
 	
 	@GetMapping("/logout")
@@ -135,12 +139,13 @@ public class UserController {
 		return "user/list";
 	}
 	
-	@GetMapping("/update/{uid}")
+	@GetMapping("/update/{uid}") 
 	public String updateForm(@PathVariable String uid, Model model) {
 		User user = userService.getUser(uid);
 		model.addAttribute("user", user);
 		return "user/update";
 	}
+	
 	@PostMapping("/update")
 	public String updateProc(MultipartHttpServletRequest req, HttpSession session, Model model) {
 		String uid = req.getParameter("uid");
@@ -159,13 +164,12 @@ public class UserController {
 			pwdFlag = true;
 		} 
 		String filename = null;
-		if (filePart != null) { // 새로운 이미지로 변경
-			if (oldFilename != null) { // 기존 이미지 삭제
+		if (filePart.getContentType().contains("image")) {		// 새로운 이미지로 변경
+			if (oldFilename != null) {		// 기존 이미지가 있으면 이미지 삭제
 				File oldFile = new File(uploadDir + "profile/" + oldFilename);
 				oldFile.delete();
 			}
-			// 이미지를 저장 후 스퀘어 이미지로 변경.
-			// register code와 동일
+			// 이미지를 저장하고, 스퀘어 이미지로 변경. register code와 동일
 			filename = filePart.getOriginalFilename();
 			String profilePath = uploadDir + "profile/" + filename;
 			try {
@@ -175,7 +179,7 @@ public class UserController {
 			}
 			AsideUtil au = new AsideUtil();
 			filename = au.squareImage(uploadDir + "profile/", filename);
-		} else 
+		} else
 			filename = oldFilename;
 		
 		User user = new User(uid, hashedPwd, uname, email, filename, addr);

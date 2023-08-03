@@ -24,9 +24,10 @@ public class AsideController {
 		session.setAttribute("stateMsg", stateMsg);
 		return "0";
 	}
-	@ResponseBody				
+	
+	@ResponseBody				// for ajax
 	@GetMapping("/weather")
-	public String getWeather(@RequestParam(name="addr", defaultValue = "경기도 수원시 장안구") String addr, HttpSession session) {
+	public String getWeather(@RequestParam(name="addr", defaultValue="경기도 수원시 장안구") String addr) {
 		String place = addr + "청";
 		String roadAddr = asideUtil.getRoadAddr(place);
 		List<String> geoCode = asideUtil.getGeoCode(roadAddr);

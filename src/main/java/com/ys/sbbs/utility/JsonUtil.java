@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class JsonUtil {
+
 	public String listToJson(List<String> list) {
 		JSONObject jObj = new JSONObject();
 		jObj.put("list", list);
@@ -25,4 +26,5 @@ public class JsonUtil {
 		}
 		return list;
 	}
+	
 }
